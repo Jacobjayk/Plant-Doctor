@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:plant_disease_detector/services/notification_service.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p; // <-- Change import alias to avoid conflict
+import 'package:sqflite/sqflite.dart'; // Add this import
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,6 +19,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _enableNotifications = false;
   String _selectedLanguage = 'English';
 
+  // Add a map of supported languages and their codes
+  static const Map<String, String> _supportedLanguages = {
+    'English': 'en',
+    'Spanish': 'es',
+    'French': 'fr',
+    'German': 'de',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -25,11 +37,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _saveImages = prefs.getBool('save_images') ?? true;
-      // Always load from 'show_confidence', not 'show_confidence_score'
       _showConfidenceScore = prefs.getBool('show_confidence') ?? true;
       _enableNotifications = prefs.getBool('enable_notifications') ?? false;
       _selectedLanguage = prefs.getString('selected_language') ?? 'English';
     });
+    // Optionally: set app locale here if you want to change language immediately
+    // _setLocale(_selectedLanguage);
   }
 
   Future<void> _saveSetting(String key, dynamic value) async {
@@ -39,7 +52,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else if (value is String) {
       await prefs.setString(key, value);
     }
+    // If saving language, update app locale
+    if (key == 'selected_language') {
+      // _setLocale(value); // See note below
+    }
   }
+
+  // Optionally, implement locale change (requires MaterialApp to support locale changes)
+  // void _setLocale(String language) {
+  //   final code = _supportedLanguages[language] ?? 'en';
+  //   MyApp.setLocale(context, Locale(code));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -258,12 +281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Select Language'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            'English',
-            'Spanish',
-            'French',
-            'German',
-          ].map((language) => RadioListTile<String>(
+          children: _supportedLanguages.keys.map((language) => RadioListTile<String>(
             title: Text(language),
             value: language,
             groupValue: _selectedLanguage,
@@ -280,21 +298,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showStorageInfo() {
+  void _showStorageInfo() async {
+    // Dynamically get model file size and database size
+    String modelSize = 'Unknown';
+    String dbSize = 'Unknown';
+    String imagesSize = 'Unknown';
+
+    try {
+      // Model file size
+      final modelFile = File('assets/models/plant_disease.tflite');
+      if (await modelFile.exists()) {
+        final bytes = await modelFile.length();
+        modelSize = '${(bytes / 1024).toStringAsFixed(1)} KB';
+      } else {
+        modelSize = '7721 KB (default)';
+      }
+    } catch (_) {
+      modelSize = '7721 KB (default)';
+    }
+
+    try {
+      // Database file size
+      final dbPath = await getDatabasesPath();
+      final dbFile = File(p.join(dbPath, 'plant_disease_detector.db'));
+      if (await dbFile.exists()) {
+        final bytes = await dbFile.length();
+        dbSize = '${(bytes / 1024).toStringAsFixed(1)} KB';
+      }
+    } catch (_) {}
+
+    try {
+      // Images directory size (estimate: sum all files in assets/images or app storage)
+      final imagesDir = Directory('assets/images');
+      if (await imagesDir.exists()) {
+        final files = imagesDir.listSync(recursive: true).whereType<File>();
+        int total = 0;
+        for (final f in files) {
+          total += await f.length();
+        }
+        imagesSize = '${(total / 1024).toStringAsFixed(1)} KB';
+      }
+    } catch (_) {}
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Storage Usage'),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('App Data: ~15 MB'),
-            Text('Model Files: ~25 MB'),
-            Text('Cached Images: ~5 MB'),
-            Text('Database: ~2 MB'),
-            Divider(),
-            Text('Total: ~47 MB', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('Model File: $modelSize'),
+            Text('Database: $dbSize'),
+            Text('Images: $imagesSize'),
+            const Divider(),
+            // Optionally, sum up total
+            // Text('Total: ...', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
