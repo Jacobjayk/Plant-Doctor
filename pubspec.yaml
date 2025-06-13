@@ -1,0 +1,60 @@
+name: plant_disease_detector
+description: "A fully offline mobile app for plant disease detection using deep learning"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # TensorFlow Lite for ML inference
+  tflite_flutter: ^0.11.0
+  
+  # Camera and image handling
+  camera: ^0.11.1
+  image_picker: ^1.0.7
+  image: ^4.5.4
+  
+  # UI and navigation
+  cupertino_icons: ^1.0.6
+  
+  # Local storage and database
+  sqflite: ^2.3.2
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.2
+  
+  # State management
+  provider: ^6.1.1
+  
+  # Utilities
+  path: ^1.8.3
+  permission_handler: ^12.0.0+1
+  
+  # JSON handling
+  json_annotation: ^4.8.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.9
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/models/
+    - assets/images/
+    
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700
+

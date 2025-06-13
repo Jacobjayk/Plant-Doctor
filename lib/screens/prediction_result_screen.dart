@@ -1,0 +1,316 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:plant_disease_detector/models/plant_disease.dart';
+import 'package:plant_disease_detector/services/database_service.dart';
+import 'package:plant_disease_detector/screens/camera_screen.dart';
+import 'package:plant_disease_detector/main.dart';
+
+class PredictionResultScreen extends StatefulWidget {
+  final PredictionResult prediction;
+  final File image;
+
+  const PredictionResultScreen({
+    super.key,
+    required this.prediction,
+    required this.image,
+  });
+
+  @override
+  State<PredictionResultScreen> createState() => _PredictionResultScreenState();
+}
+
+class _PredictionResultScreenState extends State<PredictionResultScreen> {
+  PlantDisease? _diseaseInfo;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDiseaseInfo();
+  }
+
+  Future<void> _loadDiseaseInfo() async {
+    final databaseService = Provider.of<DatabaseService>(context, listen: false);
+    final diseaseInfo = await databaseService.getDiseaseById(widget.prediction.diseaseId);
+    
+    setState(() {
+      _diseaseInfo = diseaseInfo;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Analysis Results'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              // Replace root with MainNavigationScreen and Home tab
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const MainNavigationScreen(initialIndex: 0),
+                ),
+              );
+            },
+            icon: const Icon(Icons.home),
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Image and basic result
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              widget.image,
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildConfidenceIndicator(),
+                          const SizedBox(height: 16),
+                          Text(
+                            widget.prediction.diseaseName,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (_diseaseInfo != null) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              _diseaseInfo!.scientificName,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey.shade600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Disease information
+                  if (_diseaseInfo != null) ...[
+                    _buildInfoCard(
+                      'Description',
+                      _diseaseInfo!.description,
+                      Icons.info_outline,
+                    ),
+                    _buildInfoCard(
+                      'Symptoms',
+                      _diseaseInfo!.symptoms.join('\n• '),
+                      Icons.visibility_outlined,
+                    ),
+                    _buildInfoCard(
+                      'Cultural Management',
+                      _diseaseInfo!.culturalManagement.join('\n• '),
+                      Icons.agriculture_outlined,
+                    ),
+                    _buildInfoCard(
+                      'Chemical Management',
+                      _diseaseInfo!.chemicalManagement.join('\n• '),
+                      Icons.science_outlined,
+                    ),
+                    if (_diseaseInfo!.resistantVarieties.isNotEmpty)
+                      _buildInfoCard(
+                        'Resistant Varieties',
+                        _diseaseInfo!.resistantVarieties.join(', '),
+                        Icons.shield_outlined,
+                      ),
+                  ] else if (widget.prediction.diseaseId == 'unknown') ...[
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.help_outline,
+                              size: 48,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Not a Plant Disease',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'The uploaded image does not appear to be a supported plant or plant disease. Please try again with a clear image of a plant leaf.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_outlined,
+                              size: 48,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Disease information not available',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'The detected disease "${widget.prediction.diseaseName}" was identified, but detailed information is not available in the database.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 16),
+
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).popUntil((route) => route.isFirst);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const CameraScreen(useCamera: true),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.camera_alt),
+                          label: const Text('Analyze Another'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _shareResults,
+                          icon: const Icon(Icons.share),
+                          label: const Text('Share'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildConfidenceIndicator() {
+    final confidence = widget.prediction.confidence;
+    final percentage = (confidence * 100).round();
+    
+    Color confidenceColor;
+    String confidenceText;
+    
+    if (confidence >= 0.8) {
+      confidenceColor = Colors.green;
+      confidenceText = 'High Confidence';
+    } else if (confidence >= 0.6) {
+      confidenceColor = Colors.orange;
+      confidenceText = 'Medium Confidence';
+    } else {
+      confidenceColor = Colors.red;
+      confidenceText = 'Low Confidence';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: confidenceColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: confidenceColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.analytics,
+            color: confidenceColor,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$percentage% - $confidenceText',
+            style: TextStyle(
+              color: confidenceColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(String title, String content, IconData icon) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: ExpansionTile(
+        leading: Icon(icon),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              content.startsWith('•') ? content : '• $content',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _shareResults() {
+    // Implement sharing functionality
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Share Results'),
+        content: const Text('Sharing functionality will be implemented here.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
