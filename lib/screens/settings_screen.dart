@@ -5,6 +5,9 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p; // <-- Change import alias to avoid conflict
 import 'package:sqflite/sqflite.dart'; // Add this import
+import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart'; // Add this line
+import 'package:plant_disease_detector/services/database_service.dart'; // Add this line
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -366,54 +369,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _clearCache() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Cache'),
-        content: const Text('This will clear temporary files and free up storage space. Your prediction history will not be affected.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cache cleared successfully')),
-              );
-            },
-            child: const Text('Clear'),
-          ),
-        ],
-      ),
-    );
+  void _clearCache() async {
+    // Delete temporary/cache files (not prediction history)
+    try {
+      // Clear app's temporary directory
+      final tempDir = await getTemporaryDirectory();
+      if (await tempDir.exists()) {
+        for (final file in tempDir.listSync(recursive: true)) {
+          try {
+            if (file is File) await file.delete();
+            if (file is Directory) await file.delete(recursive: true);
+          } catch (_) {}
+        }
+      }
+      // Optionally clear cached images in app storage (not assets)
+      // final appDir = await getApplicationDocumentsDirectory();
+      // ...delete files as needed...
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cache cleared successfully')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to clear cache')),
+        );
+      }
+    }
   }
 
-  void _exportData() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Export Data'),
-        content: const Text('Export your prediction history as a CSV file.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Data export feature coming soon')),
-              );
-            },
-            child: const Text('Export'),
-          ),
-        ],
-      ),
-    );
+  void _exportData() async {
+    // Export prediction history as CSV and share
+    try {
+      // Get predictions from database
+      final databaseService = Provider.of<DatabaseService>(context, listen: false);
+      final predictions = await databaseService.getPredictionHistory();
+
+      // Build CSV content
+      final buffer = StringBuffer();
+      buffer.writeln('ID,Image Path,Disease ID,Disease Name,Confidence,Timestamp,Favorite');
+      for (final p in predictions) {
+        buffer.writeln(
+          '"${p.id}","${p.imagePath}","${p.diseaseId}","${p.diseaseName}",${p.confidence},"${p.timestamp.toIso8601String()}",${p.isFavorite ? 1 : 0}'
+        );
+      }
+
+      // Save to a temporary file
+      final tempDir = await getTemporaryDirectory();
+      final file = File(p.join(tempDir.path, 'prediction_history.csv'));
+      await file.writeAsString(buffer.toString());
+
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'Plant Disease Detector - Prediction History',
+        subject: 'Prediction History Export',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to export data: $e')),
+        );
+      }
+    }
   }
 
   void _showAboutDialog() {
