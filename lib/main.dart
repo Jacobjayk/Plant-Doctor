@@ -6,9 +6,11 @@ import 'package:plant_disease_detector/screens/history_screen.dart';
 import 'package:plant_disease_detector/screens/settings_screen.dart';
 import 'package:plant_disease_detector/services/ml_service.dart';
 import 'package:plant_disease_detector/services/database_service.dart';
+import 'package:plant_disease_detector/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.initialize();
   
   // Initialize services
   final mlService = MLService();

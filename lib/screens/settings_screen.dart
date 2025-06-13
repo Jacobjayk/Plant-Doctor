@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:plant_disease_detector/services/notification_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -90,11 +91,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Enable app notifications',
             trailing: Switch(
               value: _enableNotifications,
-              onChanged: (value) {
+              onChanged: (value) async {
                 setState(() {
                   _enableNotifications = value;
                 });
                 _saveSetting('enable_notifications', value);
+                if (value) {
+                  await NotificationService.scheduleWeeklyReminder();
+                } else {
+                  await NotificationService.cancelAll();
+                }
               },
             ),
           ),
