@@ -77,12 +77,23 @@ class _PredictionResultScreenState extends State<PredictionResultScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.file(
-                              widget.image,
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                            child: widget.image.path.isNotEmpty && File(widget.image.path).existsSync()
+                                ? Image.file(
+                                    widget.image,
+                                    height: 200,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    height: 200,
+                                    width: double.infinity,
+                                    color: Colors.grey.shade200,
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      size: 64,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
                           ),
                           const SizedBox(height: 16),
                           _buildConfidenceIndicator(),
@@ -205,7 +216,7 @@ class _PredictionResultScreenState extends State<PredictionResultScreen> {
                             Navigator.of(context).popUntil((route) => route.isFirst);
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const CameraScreen(useCamera: true),
+                                builder: (context) => const CameraScreen(useCamera: false),
                               ),
                             );
                           },

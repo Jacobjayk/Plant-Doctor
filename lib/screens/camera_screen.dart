@@ -6,6 +6,7 @@ import 'package:plant_disease_detector/services/ml_service.dart';
 import 'package:plant_disease_detector/services/database_service.dart';
 import 'package:plant_disease_detector/models/plant_disease.dart';
 import 'package:plant_disease_detector/screens/prediction_result_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CameraScreen extends StatefulWidget {
   final bool useCamera;
@@ -210,10 +211,24 @@ class _CameraScreenState extends State<CameraScreen> {
       final result = await mlService.predictDisease(_selectedImage!.path);
 
       if (result != null) {
+        // Check save_images setting
+        final prefs = await SharedPreferences.getInstance();
+        final saveImages = prefs.getBool('save_images') ?? true;
+
+        String imagePathToSave = _selectedImage!.path;
+        if (!saveImages) {
+          try {
+            await _selectedImage!.delete();
+            imagePathToSave = '';
+          } catch (_) {
+            // Ignore file delete errors
+          }
+        }
+
         // Create prediction result
         final prediction = PredictionResult(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          imagePath: _selectedImage!.path,
+          imagePath: imagePathToSave,
           diseaseId: result['disease_id'],
           diseaseName: result['disease_name'],
           confidence: result['confidence'],
@@ -230,7 +245,7 @@ class _CameraScreenState extends State<CameraScreen> {
             MaterialPageRoute(
               builder: (context) => PredictionResultScreen(
                 prediction: prediction,
-                image: _selectedImage!,
+                image: imagePathToSave.isNotEmpty ? File(imagePathToSave) : File(''),
               ),
             ),
           );
