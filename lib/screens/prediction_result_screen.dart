@@ -5,6 +5,7 @@ import 'package:plant_disease_detector/models/plant_disease.dart';
 import 'package:plant_disease_detector/services/database_service.dart';
 import 'package:plant_disease_detector/screens/camera_screen.dart';
 import 'package:plant_disease_detector/main.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PredictionResultScreen extends StatefulWidget {
   final PredictionResult prediction;
@@ -296,20 +297,23 @@ class _PredictionResultScreenState extends State<PredictionResultScreen> {
     );
   }
 
-  void _shareResults() {
-    // Implement sharing functionality
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Share Results'),
-        content: const Text('Sharing functionality will be implemented here.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+  void _shareResults() async {
+    final confidence = (widget.prediction.confidence * 100).toStringAsFixed(1);
+    final text = '''
+Plant Disease Detection Result
+
+Disease: ${widget.prediction.diseaseName}
+Confidence: $confidence%
+${_diseaseInfo != null ? "Description: ${_diseaseInfo!.description}" : ""}
+${_diseaseInfo != null ? "Symptoms: ${_diseaseInfo!.symptoms.join(', ')}" : ""}
+
+Detected using Plant Disease Detector app.
+''';
+
+    await Share.shareXFiles(
+      [XFile(widget.image.path)],
+      text: text,
+      subject: 'Plant Disease Detection Result',
     );
   }
 }
