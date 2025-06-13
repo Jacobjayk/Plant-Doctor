@@ -24,14 +24,25 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   void initState() {
     super.initState();
-    // Automatically open camera or gallery on screen open
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.useCamera) {
-        _captureImage();
-      } else {
-        _selectFromGallery();
-      }
-    });
+    // Do not use ModalRoute.of(context) in initState!
+    // Remove all logic from initState that uses context or ModalRoute.
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Only auto-open if NOT on the Camera tab (i.e., not the root CameraScreen in navigation)
+    final isInitialRoute = ModalRoute.of(context)?.isFirst ?? false;
+    if (!isInitialRoute && _selectedImage == null) {
+      // Navigated from HomeScreen: auto-open camera/gallery
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (widget.useCamera) {
+          _captureImage();
+        } else {
+          _selectFromGallery();
+        }
+      });
+    }
   }
 
   @override
