@@ -6,6 +6,7 @@ import 'package:plant_disease_detector/services/database_service.dart';
 import 'package:plant_disease_detector/screens/camera_screen.dart';
 import 'package:plant_disease_detector/main.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PredictionResultScreen extends StatefulWidget {
   final PredictionResult prediction;
@@ -24,11 +25,46 @@ class PredictionResultScreen extends StatefulWidget {
 class _PredictionResultScreenState extends State<PredictionResultScreen> {
   PlantDisease? _diseaseInfo;
   bool _isLoading = true;
+  bool _showConfidence = true;
 
   @override
   void initState() {
     super.initState();
+    _loadSettings();
     _loadDiseaseInfo();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshShowConfidence();
+  }
+
+  Future<void> _refreshShowConfidence() async {
+    final prefs = await SharedPreferences.getInstance();
+    final show = prefs.getBool('show_confidence');
+    if (show != null && show != _showConfidence) {
+      setState(() {
+        _showConfidence = show;
+      });
+    }
+  }
+
+  void _reloadSettingsOnNavigation() {
+    // Listen for navigation events and reload settings
+    ModalRoute.of(context)?.addLocalHistoryEntry(LocalHistoryEntry(onRemove: () {
+      // When returning to this screen, reload the settings
+      _loadSettings();
+    }));
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    // Load the confidence score toggle from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _showConfidence = prefs.getBool('show_confidence') ?? true;
+    });
   }
 
   Future<void> _loadDiseaseInfo() async {
@@ -96,8 +132,11 @@ class _PredictionResultScreenState extends State<PredictionResultScreen> {
                                   ),
                           ),
                           const SizedBox(height: 16),
-                          _buildConfidenceIndicator(),
-                          const SizedBox(height: 16),
+                          // Remove the extra SizedBox when _showConfidence is false
+                          if (_showConfidence) ...[
+                            _buildConfidenceIndicator(),
+                            const SizedBox(height: 16),
+                          ],
                           Text(
                             widget.prediction.diseaseName,
                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(

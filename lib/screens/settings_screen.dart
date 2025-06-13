@@ -24,7 +24,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _saveImages = prefs.getBool('save_images') ?? true;
-      _showConfidenceScore = prefs.getBool('show_confidence_score') ?? true;
+      // Always load from 'show_confidence', not 'show_confidence_score'
+      _showConfidenceScore = prefs.getBool('show_confidence') ?? true;
       _enableNotifications = prefs.getBool('enable_notifications') ?? false;
       _selectedLanguage = prefs.getString('selected_language') ?? 'English';
     });
@@ -77,7 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 setState(() {
                   _showConfidenceScore = value;
                 });
-                _saveSetting('show_confidence_score', value);
+                // Save with the correct key: 'show_confidence'
+                _saveSetting('show_confidence', value);
               },
             ),
           ),
