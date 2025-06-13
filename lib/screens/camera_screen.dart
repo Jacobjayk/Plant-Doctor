@@ -24,8 +24,14 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   void initState() {
     super.initState();
-    // Removed automatic camera/gallery opening
-    // User must now tap the button to open camera or gallery
+    // Automatically open camera or gallery on screen open
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.useCamera) {
+        _captureImage();
+      } else {
+        _selectFromGallery();
+      }
+    });
   }
 
   @override
