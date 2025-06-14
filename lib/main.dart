@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         Provider<DatabaseService>.value(value: databaseService),
       ],
       child: MaterialApp(
-        title: 'Plant Disease Detector',
+        title: 'Plant Doctor',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.green,

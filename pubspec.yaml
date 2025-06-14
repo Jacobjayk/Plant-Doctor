@@ -1,6 +1,5 @@
-name: plant_disease_detector
-description: "A fully offline mobile app for plant disease detection using deep learning"
-publish_to: 'none'
+name: plant_doctor
+description: "A fully offline mobile app for plant disease detection using deep learning. Plant Doctor helps you diagnose plant health."
 
 version: 1.0.0+1
 
@@ -67,4 +66,5 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
+  image_path: "assets/images/icon.png"
   image_path: "assets/images/icon.png"

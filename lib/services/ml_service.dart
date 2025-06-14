@@ -65,7 +65,7 @@ class MLService {
       String diseaseName = (maxIndex < labels.length) ? labels[maxIndex] : 'Unknown';
       String diseaseId = _getDiseaseId(diseaseName);
 
-      // Confidence threshold (e.g., 0.55 = 55%)
+      // Confidence threshold (0.55 = 50%)
       const double confidenceThreshold = 0.55;
       if (maxConfidence < confidenceThreshold) {
         diseaseName = 'Unknown or Not a Plant Disease';

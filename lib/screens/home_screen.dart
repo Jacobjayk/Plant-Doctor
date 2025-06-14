@@ -34,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Welcome to Plant Disease Detector',
+                            'Welcome to Plant Doctor',
                             style: Theme.of(context).textTheme.headlineSmall,
                             textAlign: TextAlign.center,
                           ),
