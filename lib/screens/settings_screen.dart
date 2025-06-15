@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:plant_disease_detector/services/notification_service.dart';
+import 'package:plant_doctor/services/notification_service.dart';
+import 'package:plant_doctor/services/database_service.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p; // <-- Change import alias to avoid conflict
 import 'package:sqflite/sqflite.dart'; // Add this import
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart'; // Add this line
-import 'package:plant_disease_detector/services/database_service.dart'; // Add this line
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

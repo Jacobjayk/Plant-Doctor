@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_disease_detector/models/plant_disease.dart';
-import 'package:plant_disease_detector/services/database_service.dart';
-import 'package:plant_disease_detector/screens/prediction_result_screen.dart';
+import 'package:plant_doctor/models/plant_disease.dart';
+import 'package:plant_doctor/services/database_service.dart';
+import 'package:plant_doctor/screens/prediction_result_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});

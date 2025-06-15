@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_disease_detector/screens/home_screen.dart';
-import 'package:plant_disease_detector/screens/camera_screen.dart';
-import 'package:plant_disease_detector/screens/history_screen.dart';
-import 'package:plant_disease_detector/screens/settings_screen.dart';
-import 'package:plant_disease_detector/services/ml_service.dart';
-import 'package:plant_disease_detector/services/database_service.dart';
-import 'package:plant_disease_detector/services/notification_service.dart';
+import 'package:plant_doctor/screens/home_screen.dart';
+import 'package:plant_doctor/screens/camera_screen.dart';
+import 'package:plant_doctor/screens/history_screen.dart';
+import 'package:plant_doctor/screens/settings_screen.dart';
+import 'package:plant_doctor/services/ml_service.dart';
+import 'package:plant_doctor/services/database_service.dart';
+import 'package:plant_doctor/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

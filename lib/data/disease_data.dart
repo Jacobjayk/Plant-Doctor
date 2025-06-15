@@ -1,4 +1,4 @@
-import 'package:plant_disease_detector/models/plant_disease.dart';
+import 'package:plant_doctor/models/plant_disease.dart';
 
 class DiseaseDataParser {
   static List<PlantDisease> getInitialDiseaseData() {

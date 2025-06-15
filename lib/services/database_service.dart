@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:plant_disease_detector/models/plant_disease.dart';
-import 'package:plant_disease_detector/data/disease_data.dart';
+import 'package:plant_doctor/models/plant_disease.dart';
+import 'package:plant_doctor/data/disease_data.dart';
 
 class DatabaseService {
   Database? _database;

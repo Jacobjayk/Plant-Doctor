@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_disease_detector/models/plant_disease.dart';
-import 'package:plant_disease_detector/services/database_service.dart';
-import 'package:plant_disease_detector/screens/camera_screen.dart';
-import 'package:plant_disease_detector/main.dart';
+import 'package:plant_doctor/models/plant_disease.dart';
+import 'package:plant_doctor/services/database_service.dart';
+import 'package:plant_doctor/screens/camera_screen.dart';
+import 'package:plant_doctor/main.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

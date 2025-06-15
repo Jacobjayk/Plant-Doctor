@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_disease_detector/services/ml_service.dart';
-import 'package:plant_disease_detector/services/database_service.dart';
-import 'package:plant_disease_detector/models/plant_disease.dart';
-import 'package:plant_disease_detector/screens/prediction_result_screen.dart';
+import 'package:plant_doctor/services/ml_service.dart';
+import 'package:plant_doctor/services/database_service.dart';
+import 'package:plant_doctor/models/plant_disease.dart';
+import 'package:plant_doctor/screens/prediction_result_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CameraScreen extends StatefulWidget {

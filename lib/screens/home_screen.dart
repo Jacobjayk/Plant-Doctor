@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:plant_disease_detector/services/ml_service.dart';
-import 'package:plant_disease_detector/screens/camera_screen.dart';
+import 'package:plant_doctor/services/ml_service.dart';
+import 'package:plant_doctor/screens/camera_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
