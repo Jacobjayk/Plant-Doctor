@@ -143,8 +143,7 @@ class MLService {
   }
   List<String> _getPlantDiseaseLabels() {
     return [
-      // Copy-paste the output of print(class_names) from your Python code here, as a Dart list of strings, in the same order.
-      // For example:
+      // 39 classes, order must match your model's training exactly!
       'Apple___Apple_scab',
       'Apple___Black_rot',
       'Apple___Cedar_apple_rust',
@@ -183,6 +182,7 @@ class MLService {
       'Tomato___Tomato_Yellow_Leaf_Curl_Virus',
       'Tomato___Tomato_mosaic_virus',
       'Tomato___healthy',
+      'Unknown', // <-- Make sure this is the 39th class, matching your model
     ];
   }
 

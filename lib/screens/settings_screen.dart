@@ -508,16 +508,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: const SingleChildScrollView(
           child: Text(
             'Privacy Policy\n\n'
-            'This app processes images locally on your device. No data is sent to external servers.\n\n'
-            'Data Collection:\n'
-            '• Images are processed locally\n'
-            '• Prediction history is stored locally\n'
-            '• No personal information is collected\n\n'
-            'Data Storage:\n'
-            '• All data remains on your device\n'
-            '• You can delete data anytime\n'
-            '• No cloud storage is used\n\n'
-            'Your privacy is important to us. This app is designed to work completely offline to protect your data.',
+            'Plant Doctor is committed to protecting your privacy. This app processes all images and data locally on your device. No images, predictions, or personal information are sent to any server or third party.\n\n'
+            'Data Collection & Usage:\n'
+            '• Images you analyze are processed only on your device.\n'
+            '• Prediction history is stored locally and never uploaded.\n'
+            '• No personal or sensitive information is collected or shared.\n\n'
+            'Data Storage & Control:\n'
+            '• All data remains on your device and is under your control.\n'
+            '• You can clear your prediction history and cache at any time from the app settings.\n'
+            '• No cloud storage or remote backup is used by this app.\n\n'
+            'Permissions:\n'
+            '• Camera and storage permissions are used solely for analyzing plant images and saving results if you choose.\n'
+            '• Notification permission is used only for plant care reminders (if enabled).\n\n'
+            'Your privacy is important to us. If you have any questions or concerns, please contact the developer via the app store listing.',
           ),
         ),
         actions: [
