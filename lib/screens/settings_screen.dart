@@ -131,13 +131,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          _buildSettingsTile(
-            icon: Icons.language,
-            title: 'Language',
-            subtitle: _selectedLanguage,
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: _showLanguageDialog,
-          ),
+          // _buildSettingsTile(
+          //   icon: Icons.language,
+          //   title: 'Language',
+          //   subtitle: _selectedLanguage,
+          //   trailing: const Icon(Icons.arrow_forward_ios),
+          //   onTap: _showLanguageDialog,
+          // ),
 
           const SizedBox(height: 24),
 
